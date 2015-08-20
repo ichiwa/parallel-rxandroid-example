@@ -12,9 +12,7 @@ import android.widget.Toast;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import java.util.List;
 import org.json.JSONException;
-import org.json.JSONObject;
 import retrofit.RestAdapter;
 import rx.Observable;
 import rx.Subscriber;
@@ -22,7 +20,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static MainActivity self;
     private final String TAG = MainActivity.class.getSimpleName();
 
     @Bind (R.id.button)
@@ -36,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        self = this;
     }
 
     @Override
@@ -58,10 +57,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private class Results {
-        List<JSONObject> list;
     }
 
     @OnClick (R.id.button)
@@ -92,7 +87,9 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 return sb.toString();
-            }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>() {
+            })
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<String>() {
             @Override
             public void onCompleted() {
 
@@ -101,21 +98,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
-                showError();
+                Toast.makeText(MainActivity.self, "error", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNext(String s) {
-                setResultText(s);
+                result.setText(s);
             }
         });
-    }
-
-    private void showError() {
-        Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
-    }
-
-    private void setResultText(String s) {
-        result.setText(s);
     }
 }
